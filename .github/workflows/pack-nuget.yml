@@ -84,7 +84,7 @@ jobs:
         uses: NuGet/login@v1
         id: nuget-login
         with:
-          user: doticca
+          user: ${{ secrets.NUGET_USER }}
 
       - name: Publish nuget.org
         if: github.event_name == 'workflow_dispatch' && inputs.publish == true
