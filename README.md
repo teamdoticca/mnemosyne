@@ -39,7 +39,7 @@ dotnet add package Doticca.Mnemosyne
 Or pin a version:
 
 ```xml
-<PackageReference Include="Doticca.Mnemosyne" Version="0.1.1" />
+<PackageReference Include="Doticca.Mnemosyne" Version="0.1.2" />
 ```
 
 The package targets **.NET 10** and contains managed code only. It has no native runtime assets, so the same package works across supported Windows, Linux, and macOS runtimes.
