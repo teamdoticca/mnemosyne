@@ -176,7 +176,6 @@ dotnet pack src/Mnemosyne/Mnemosyne.csproj --output artifacts/nuget
 
 The GitHub Actions workflow validates the solution, packs the NuGet artifact, publishes dogfood builds to [GitHub Packages](https://github.com/orgs/teamdoticca/packages), and publishes explicit releases to [nuget.org](https://www.nuget.org/packages/Doticca.Mnemosyne).
 
-The .NET assembly is not currently published to npm. An npm package would require a separate JavaScript or WebAssembly binding with a deliberate JavaScript API; publishing the DLL itself would not produce a usable npm library.
 
 ---
 
