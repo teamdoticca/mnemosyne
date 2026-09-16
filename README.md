@@ -30,16 +30,16 @@ Typical consumers: repository explorers, planning indexes, agent tooling, IDE ov
 
 ## Add Mnemosyne to your .NET project
 
-Package id: **`Mnemosyne`** on [nuget.org](https://www.nuget.org/packages/Mnemosyne).
+Package id: **`Doticca.Mnemosyne`** on [nuget.org](https://www.nuget.org/packages/Doticca.Mnemosyne).
 
 ```bash
-dotnet add package Mnemosyne
+dotnet add package Doticca.Mnemosyne
 ```
 
 Or pin a version:
 
 ```xml
-<PackageReference Include="Mnemosyne" Version="0.1.0" />
+<PackageReference Include="Doticca.Mnemosyne" Version="0.1.1" />
 ```
 
 The package targets **.NET 10** and contains managed code only. It has no native runtime assets, so the same package works across supported Windows, Linux, and macOS runtimes.
@@ -174,7 +174,7 @@ dotnet test Mnemosyne.sln
 dotnet pack src/Mnemosyne/Mnemosyne.csproj --output artifacts/nuget
 ```
 
-The GitHub Actions workflow validates the solution, packs the NuGet artifact, publishes dogfood builds to [GitHub Packages](https://github.com/orgs/teamdoticca/packages), and publishes explicit releases to [nuget.org](https://www.nuget.org/packages/Mnemosyne).
+The GitHub Actions workflow validates the solution, packs the NuGet artifact, publishes dogfood builds to [GitHub Packages](https://github.com/orgs/teamdoticca/packages), and publishes explicit releases to [nuget.org](https://www.nuget.org/packages/Doticca.Mnemosyne).
 
 The .NET assembly is not currently published to npm. An npm package would require a separate JavaScript or WebAssembly binding with a deliberate JavaScript API; publishing the DLL itself would not produce a usable npm library.
 

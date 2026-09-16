@@ -7,8 +7,8 @@
     <RootNamespace>Mnemosyne</RootNamespace>
     <AssemblyName>Mnemosyne</AssemblyName>
     <Description>Markdown language intelligence engine (structure, tags, links, snapshot diff). NuGet-shaped peer to Roslyn for documents — no SQLite, Git, or UI.</Description>
-    <PackageId>Mnemosyne</PackageId>
-    <Version>0.1.0</Version>
+    <PackageId>Doticca.Mnemosyne</PackageId>
+    <Version>0.1.1</Version>
     <Authors>Doticca SRL</Authors>
     <Company>Doticca SRL</Company>
     <IsPackable>true</IsPackable>
