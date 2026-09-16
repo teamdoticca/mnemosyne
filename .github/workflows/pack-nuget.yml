@@ -1,0 +1,93 @@
+name: pack-nuget
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "README.md"
+      - "Directory.Build.props"
+      - "Mnemosyne.sln"
+      - ".github/workflows/pack-nuget.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "README.md"
+      - "Directory.Build.props"
+      - "Mnemosyne.sln"
+      - ".github/workflows/pack-nuget.yml"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish to nuget.org after validation
+        type: boolean
+        default: false
+
+concurrency:
+  group: pack-nuget-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  validate-and-pack:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Test
+        run: dotnet test Mnemosyne.sln --configuration Release --verbosity normal
+
+      - name: Resolve package version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' src/Mnemosyne/Mnemosyne.csproj)
+          if [[ -z "$base" ]]; then exit 1; fi
+          version="$base"
+          if [[ "$GITHUB_REF" == refs/heads/main ]]; then version="${base}.${GITHUB_RUN_NUMBER}"; fi
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then version="${base}-pr.${GITHUB_RUN_NUMBER}"; fi
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then version="${GITHUB_REF#refs/tags/v}"; fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Pack
+        run: dotnet pack src/Mnemosyne/Mnemosyne.csproj --configuration Release --no-restore --output artifacts/nuget -p:PackageVersion=${{ steps.version.outputs.version }}
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: mnemosyne-nuget
+          path: artifacts/nuget/*.nupkg
+          if-no-files-found: error
+
+      - name: Publish GitHub Packages
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push artifacts/nuget/*.nupkg --source https://nuget.pkg.github.com/teamdoticca/index.json --api-key "$NUGET_AUTH_TOKEN" --skip-duplicate
+
+      - name: Login to nuget.org
+        if: github.event_name == 'workflow_dispatch' && inputs.publish == true
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish nuget.org
+        if: github.event_name == 'workflow_dispatch' && inputs.publish == true
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push artifacts/nuget/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate

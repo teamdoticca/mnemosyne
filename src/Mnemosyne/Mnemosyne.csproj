@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Mnemosyne</RootNamespace>
+    <AssemblyName>Mnemosyne</AssemblyName>
+    <Description>Markdown language intelligence engine (structure, tags, links, snapshot diff). NuGet-shaped peer to Roslyn for documents — no SQLite, Git, or UI.</Description>
+    <PackageId>Doticca.Mnemosyne</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Doticca SRL</Authors>
+    <Company>Doticca SRL</Company>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageProjectUrl>https://github.com/teamdoticca/mnemosyne</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/teamdoticca/mnemosyne</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>markdown;language;parser;semantics;links;doticca</PackageTags>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>
