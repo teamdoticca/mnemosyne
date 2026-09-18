@@ -6,9 +6,9 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Mnemosyne</RootNamespace>
     <AssemblyName>Mnemosyne</AssemblyName>
-    <Description>Markdown language intelligence engine (structure, tags, links, snapshot diff). NuGet-shaped peer to Roslyn for documents — no SQLite, Git, or UI.</Description>
+    <Description>Deterministic Markdown document structure, classification, link diagnostics, and snapshot differences. No filesystem, Git, database, or UI dependencies.</Description>
     <PackageId>Doticca.Mnemosyne</PackageId>
-    <Version>0.1.2</Version>
+    <Version>0.1.3</Version>
     <Authors>Doticca SRL</Authors>
     <Company>Doticca SRL</Company>
     <IsPackable>true</IsPackable>
@@ -17,12 +17,19 @@
     <RepositoryUrl>https://github.com/teamdoticca/mnemosyne</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>0.1.2.17</PackageValidationBaselineVersion>
     <PackageTags>markdown;language;parser;semantics;links;doticca</PackageTags>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="README.md" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

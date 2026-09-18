@@ -79,27 +79,11 @@ internal sealed class MarkdownLinkResolver : IMarkdownLinkResolver
 
     private static string ResolveRelative(string baseDir, string target)
     {
-        var t = MarkdownPathIndex.NormalizePath(target);
-        if (t.StartsWith("./", StringComparison.Ordinal))
-        {
-            t = t[2..];
-        }
-
-        if (string.IsNullOrEmpty(baseDir) || !t.StartsWith("../", StringComparison.Ordinal) && !t.Contains('/'))
-        {
-            // relative file in same dir
-            if (!t.Contains('/') && !string.IsNullOrEmpty(baseDir))
-            {
-                return MarkdownPathIndex.NormalizePath($"{baseDir}/{t}");
-            }
-        }
-
-        if (t.StartsWith('/'))
-        {
-            return MarkdownPathIndex.NormalizePath(t);
-        }
-
-        var combined = string.IsNullOrEmpty(baseDir) ? t : $"{baseDir}/{t}";
+        var rooted = target.Replace('\\', '/').StartsWith('/');
+        var normalized = MarkdownPathIndex.NormalizePath(target);
+        var combined = rooted || string.IsNullOrEmpty(baseDir)
+            ? normalized
+            : $"{baseDir}/{normalized}";
         return NormalizeDotSegments(combined);
     }
 

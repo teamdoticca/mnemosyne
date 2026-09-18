@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a reproducible parser, resolver, diff, or packaging problem.
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include secrets or private documents. For vulnerabilities, use the Security tab's private reporting form."
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: Doticca.Mnemosyne version
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system and dotnet --info summary.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include sanitized Markdown, parse options, paths/indexes, and calling code.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected and actual result
+      description: Include relevant diagnostics or exception details without private data.
+    validations:
+      required: true

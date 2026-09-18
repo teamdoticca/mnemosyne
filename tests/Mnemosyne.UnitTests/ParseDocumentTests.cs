@@ -5,6 +5,44 @@ namespace Mnemosyne.UnitTests;
 
 public class ParseDocumentTests
 {
+    [Theory]
+    [InlineData("")]
+    [InlineData("---")]
+    [InlineData("---\n")]
+    [InlineData("---\n---")]
+    [InlineData("---\n---\n")]
+    [InlineData("---\ntitle: Unclosed")]
+    public void Empty_or_incomplete_front_matter_does_not_throw(string markdown)
+    {
+        var document = MnemosyneFacade.Parse(markdown);
+
+        document.FrontMatter.Title.Should().BeNull();
+        document.Headings.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("\n")]
+    [InlineData("\r\n")]
+    [InlineData("\r")]
+    public void Empty_front_matter_preserves_body_and_line_numbers(string newline)
+    {
+        var document = MnemosyneFacade.Parse(string.Join(newline, "---", "---", "# Title", "## Details"));
+
+        document.Title.Should().Be("Title");
+        document.Headings.Select(heading => heading.StartLine).Should().Equal(3, 4);
+    }
+
+    [Theory]
+    [InlineData("```")]
+    [InlineData("~~~")]
+    public void Fenced_examples_do_not_emit_headings_or_links(string fence)
+    {
+        var document = MnemosyneFacade.Parse($"# Title\n{fence}\n## Example\n[example](missing.md)\n{fence}\n## Real");
+
+        document.Headings.Select(heading => heading.Text).Should().Equal("Title", "Real");
+        document.Links.Should().BeEmpty();
+    }
+
     [Fact]
     public void Parses_h1_to_h3_with_slugs_and_ignores_h4()
     {

@@ -4,90 +4,157 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "README.md"
-      - "Directory.Build.props"
-      - "Mnemosyne.sln"
-      - ".github/workflows/pack-nuget.yml"
   pull_request:
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "README.md"
-      - "Directory.Build.props"
-      - "Mnemosyne.sln"
-      - ".github/workflows/pack-nuget.yml"
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish to nuget.org after validation
+        description: Publish the selected version tag to nuget.org and GitHub Releases
         type: boolean
         default: false
 
 concurrency:
-  group: pack-nuget-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: pack-nuget-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/') }}
 
 permissions:
   contents: read
-  packages: write
-  id-token: write
 
 jobs:
   validate-and-pack:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
+    name: Validate (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v7
-
+        with:
+          persist-credentials: false
       - uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: "10.0.x"
-
-      - name: Test
-        run: dotnet test Mnemosyne.sln --configuration Release --verbosity normal
-
+          global-json-file: global.json
       - name: Resolve package version
         id: version
-        shell: bash
+        shell: pwsh
+        env:
+          PUBLISH: ${{ inputs.publish }}
         run: |
-          set -euo pipefail
-          base=$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' src/Mnemosyne/Mnemosyne.csproj)
-          if [[ -z "$base" ]]; then exit 1; fi
-          version="$base"
-          if [[ "$GITHUB_REF" == refs/heads/main ]]; then version="${base}.${GITHUB_RUN_NUMBER}"; fi
-          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then version="${base}-pr.${GITHUB_RUN_NUMBER}"; fi
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then version="${GITHUB_REF#refs/tags/v}"; fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-      - name: Pack
-        run: dotnet pack src/Mnemosyne/Mnemosyne.csproj --configuration Release --no-restore --output artifacts/nuget -p:PackageVersion=${{ steps.version.outputs.version }}
-
+          [xml]$project = Get-Content src/Mnemosyne/Mnemosyne.csproj -Raw
+          $baseVersion = $project.Project.PropertyGroup.Version
+          if ($baseVersion -notmatch '^\d+\.\d+\.\d+$') {
+            throw 'The project version must have three numeric components.'
+          }
+          if ($env:PUBLISH -eq 'true' -and -not $env:GITHUB_REF.StartsWith('refs/tags/v')) {
+            throw 'Publishing requires selecting a version tag, not a branch.'
+          }
+          if ($env:GITHUB_REF.StartsWith('refs/tags/')) {
+            if ($env:GITHUB_REF -cne "refs/tags/v$baseVersion") {
+              throw 'Tag and project version must match exactly.'
+            }
+            $version = $baseVersion
+          } elseif ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
+            $version = "$baseVersion-pr.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
+          } else {
+            $version = "$baseVersion-ci.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Verify tests, coverage, API compatibility, and package consumer
+        shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/verify.ps1 -PackageVersion $env:PACKAGE_VERSION
       - uses: actions/upload-artifact@v7
+        if: matrix.os == 'ubuntu-latest'
         with:
           name: mnemosyne-nuget
-          path: artifacts/nuget/*.nupkg
+          path: |
+            artifacts/verify/*/*.nupkg
+            artifacts/verify/*/*.snupkg
           if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}
+          path: artifacts/verify/*/results/
+          if-no-files-found: warn
+          retention-days: 7
 
+  publish-github:
+    needs: validate-and-pack
+    if: github.event_name == 'push' && github.repository == 'teamdoticca/mnemosyne'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: mnemosyne-nuget
+          path: packages
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
       - name: Publish GitHub Packages
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-        shell: bash
+        shell: pwsh
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet nuget push artifacts/nuget/*.nupkg --source https://nuget.pkg.github.com/teamdoticca/index.json --api-key "$NUGET_AUTH_TOKEN" --skip-duplicate
+        run: |
+          Get-ChildItem packages -Recurse -Filter *.nupkg | ForEach-Object {
+            dotnet nuget push $_.FullName --source https://nuget.pkg.github.com/teamdoticca/index.json --api-key $env:NUGET_AUTH_TOKEN --skip-duplicate --no-symbols
+            if ($LASTEXITCODE -ne 0) { throw 'GitHub Packages publish failed.' }
+          }
 
+  publish-nuget:
+    needs: validate-and-pack
+    if: github.event_name == 'workflow_dispatch' && inputs.publish && startsWith(github.ref, 'refs/tags/v') && github.repository == 'teamdoticca/mnemosyne'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: nuget
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require a release commit on main
+        run: git merge-base --is-ancestor HEAD origin/main
+      - uses: actions/download-artifact@v8
+        with:
+          name: mnemosyne-nuget
+          path: packages
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
       - name: Login to nuget.org
-        if: github.event_name == 'workflow_dispatch' && inputs.publish == true
         uses: NuGet/login@v1
         id: nuget-login
         with:
           user: ${{ secrets.NUGET_USER }}
-
-      - name: Publish nuget.org
-        if: github.event_name == 'workflow_dispatch' && inputs.publish == true
+      - name: Publish nuget.org and symbols
+        shell: pwsh
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
-        run: dotnet nuget push artifacts/nuget/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
+        run: |
+          Get-ChildItem packages -Recurse -Filter *.nupkg | ForEach-Object {
+            dotnet nuget push $_.FullName --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { throw 'NuGet publish failed.' }
+          }
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $env:GITHUB_REF_NAME --verify-tag --generate-notes --title "Mnemosyne $env:GITHUB_REF_NAME" --repo $env:GITHUB_REPOSITORY
+            if ($LASTEXITCODE -ne 0) { throw 'GitHub release creation failed.' }
+          }
+          $artifacts = @(Get-ChildItem packages -Recurse -File | Where-Object { $_.Extension -in '.nupkg', '.snupkg' } | ForEach-Object { $_.FullName })
+          gh release upload $env:GITHUB_REF_NAME @artifacts --clobber --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { throw 'Release artifact upload failed.' }

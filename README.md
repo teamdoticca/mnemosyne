@@ -1,5 +1,9 @@
 # Mnemosyne
 
+[![Build](https://github.com/teamdoticca/mnemosyne/actions/workflows/pack-nuget.yml/badge.svg)](https://github.com/teamdoticca/mnemosyne/actions/workflows/pack-nuget.yml)
+[![NuGet](https://img.shields.io/nuget/v/Doticca.Mnemosyne.svg)](https://www.nuget.org/packages/Doticca.Mnemosyne)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 **Mnemosyne turns the Markdown a repository already has into structured document intelligence.**
 
 Use it when a tool needs to understand **what a Markdown document is**, **which planning or governance signals it carries**, **where its links lead**, and **how its document set evolved** without putting persistence, Git, or filesystem policy inside the engine.
@@ -14,12 +18,14 @@ Before + after       -> diff -> added / removed / moved / changed documents
 
 Typical consumers: repository explorers, planning indexes, agent tooling, IDE overlays, and applications such as [Mnemon](https://github.com/teamdoticca/Mnemon).
 
+**Status: early development (0.x).** This is a focused document intelligence engine, not a complete CommonMark/GFM parser or YAML implementation. Patch releases preserve the public API; minor releases may change contracts with migration notes. See the [API contract and limitations](docs/API.md) before integrating.
+
 ---
 
 ## Problems it solves
 
 | Pain without Mnemosyne | With Mnemosyne |
-|------------------------|----------------|
+| ------------------------ | ---------------- |
 | Treating every Markdown file as an untyped blob | Document kind, lifecycle, planning reference, and key sections |
 | Reimplementing path heuristics in every consumer | Built-in conventions for roadmaps, epics, briefs, policies, and references |
 | Following links with filesystem access during indexing | Pure resolution against a caller-provided `MarkdownPathIndex` |
@@ -36,13 +42,9 @@ Package id: **`Doticca.Mnemosyne`** on [nuget.org](https://www.nuget.org/package
 dotnet add package Doticca.Mnemosyne
 ```
 
-Or pin a version:
+For reproducible application builds, pin an exact version from the [published version history](https://www.nuget.org/packages/Doticca.Mnemosyne#versions-body-tab). The source version on `main` may be newer than the latest published package.
 
-```xml
-<PackageReference Include="Doticca.Mnemosyne" Version="0.1.2" />
-```
-
-The package targets **.NET 10** and contains managed code only. It has no native runtime assets, so the same package works across supported Windows, Linux, and macOS runtimes.
+The package targets **.NET 10** and contains managed code only, with no runtime NuGet dependencies or native assets. CI is configured for Windows, Linux, and macOS. .NET 8/9, Native AOT, trimming, and browser/WASM are not currently supported or verified targets.
 
 ---
 
@@ -52,20 +54,20 @@ The package targets **.NET 10** and contains managed code only. It has no native
 using Mnemosyne;
 
 var markdown = """
-	---
-	status: Active
-	owner: platform
-	---
-	# Workspace plan
+ ---
+ status: Active
+ owner: platform
+ ---
+ # Workspace plan
 
-	## Next
+ ## Next
 
-	Ship the package integration.
-	""";
+ Ship the package integration.
+ """;
 
 var document = MnemosyneFacade.Parse(
-	markdown,
-	new MarkdownParseOptions { Path = "docs/roadmap/workspace/README.md" });
+ markdown,
+ new MarkdownParseOptions { Path = "docs/roadmap/workspace/README.md" });
 
 Console.WriteLine(document.Title);
 Console.WriteLine(document.Semantics.DocKind);    // Epic
@@ -84,20 +86,20 @@ The parser extracts the title, blurb, front matter, headings, links, significanc
 using Mnemosyne;
 
 var document = MnemosyneFacade.Parse(
-	"See [the guide](../guides/README.md#install).",
-	new MarkdownParseOptions { Path = "docs/README.md" });
+ "See [the guide](../guides/README.md#install).",
+ new MarkdownParseOptions { Path = "docs/README.md" });
 
 var index = new MarkdownPathIndex(
-	["guides/README.md"],
-	new Dictionary<string, IEnumerable<string>>
-	{
-		["guides/README.md"] = ["install"],
-	});
+ ["guides/README.md"],
+ new Dictionary<string, IEnumerable<string>>
+ {
+  ["guides/README.md"] = ["install"],
+ });
 
 var diagnostics = MnemosyneFacade.ResolveLinks(document, index);
 foreach (var diagnostic in diagnostics)
 {
-	Console.WriteLine($"{diagnostic.Kind}: {diagnostic.Link.Target}");
+ Console.WriteLine($"{diagnostic.Kind}: {diagnostic.Link.Target}");
 }
 ```
 
@@ -111,17 +113,17 @@ foreach (var diagnostic in diagnostics)
 using Mnemosyne;
 
 var before = MnemosyneFacade.Parse(
-	"# Workspace plan\n",
-	new MarkdownParseOptions { Path = "docs/roadmap/README.md" });
+ "# Workspace plan\n",
+ new MarkdownParseOptions { Path = "docs/roadmap/README.md" });
 var after = MnemosyneFacade.Parse(
-	"# Workspace plan\n\n## Next\n",
-	new MarkdownParseOptions { Path = "docs/done/README.md" });
+ "# Workspace plan\n\n## Next\n",
+ new MarkdownParseOptions { Path = "docs/done/README.md" });
 
 var diff = MnemosyneFacade.Diff([before], [after]);
 
 foreach (var change in diff.Changes)
 {
-	Console.WriteLine($"{change.Kind}: {change.Path ?? change.ToPath}");
+ Console.WriteLine($"{change.Kind}: {change.Path ?? change.ToPath}");
 }
 ```
 
@@ -132,7 +134,7 @@ The snapshot differ reports document additions, removals, moves, heading changes
 ## Public API cheat sheet
 
 | You want... | Call |
-|-------------|------|
+| ------------- | ------ |
 | Parse one document | `MnemosyneFacade.Parse(markdown, options)` |
 | Explain classification | `MnemosyneFacade.Explain(markdown, options)` |
 | Resolve repository links | `MnemosyneFacade.ResolveLinks(document, index)` |
@@ -149,7 +151,7 @@ The facade provides default implementations. Consumers can depend on the interfa
 Mnemosyne exposes deterministic document semantics:
 
 | Concept | Values |
-|---------|--------|
+| --------- | -------- |
 | Document kind | `Unknown`, `Index`, `Epic`, `Brief`, `Policy`, `Reference` |
 | Lifecycle | `Unknown`, `Active`, `Planned`, `Done`, `Draft` |
 | Additional context | `PlanningRef`, `Owner`, `StatusRaw`, `KeySections` |
@@ -169,19 +171,30 @@ The engine is autonomous and has no reference back to Mnemon. Mnemon consumes it
 
 ## Development
 
+Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and [PowerShell 7](https://github.com/PowerShell/PowerShell). No sibling repositories, private feeds, services, or credentials are needed.
+
 ```bash
 dotnet test Mnemosyne.sln
-dotnet pack src/Mnemosyne/Mnemosyne.csproj --output artifacts/nuget
+pwsh -File scripts/verify.ps1
 ```
 
-The GitHub Actions workflow validates the solution, packs the NuGet artifact, publishes dogfood builds to [GitHub Packages](https://github.com/orgs/teamdoticca/packages), and publishes explicit releases to [nuget.org](https://www.nuget.org/packages/Doticca.Mnemosyne).
+The verification script runs tests with coverage gates (80% lines, 70% branches), checks package compatibility against the published baseline, validates license/source metadata, and runs an isolated NuGet consumer. Outputs stay under `artifacts/verify/`.
 
+Pull requests receive read-only CI validation. Main-branch builds use `-ci` prerelease versions on GitHub Packages; nuget.org publication requires an explicit dispatch on a matching version tag. See the [release checklist](docs/RELEASING.md).
+
+## Contributing and support
+
+Bug reports, small reproductions, and contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md). Use [GitHub Issues](https://github.com/teamdoticca/mnemosyne/issues) for non-sensitive questions and bugs; follow [SECURITY.md](SECURITY.md) for private vulnerability reports.
+
+Maintained by Doticca, with [@doticca](https://github.com/doticca) as the current code owner. Support is best-effort; no response-time or long-term support guarantee is offered. The immediate roadmap is broader Markdown corpus coverage, documented conventions, and compatibility-tested releases, not adding persistence or application workflows to the library.
 
 ---
 
 ## Further reading
 
 - [src/Mnemosyne/README.md](src/Mnemosyne/README.md) - package boundary and public surface
+- [docs/API.md](docs/API.md) - supported syntax, contracts, and limitations
+- [CHANGELOG.md](CHANGELOG.md) - release history and pending changes
 - [Mnemon](https://github.com/teamdoticca/Mnemon) - primary consumer
 
-Package license: **MIT**.
+Source and package license: [MIT](LICENSE). Test and build dependencies retain their own licenses.

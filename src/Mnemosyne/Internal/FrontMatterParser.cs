@@ -12,13 +12,12 @@ internal static class FrontMatterParser
     public static (MarkdownFrontMatter Matter, string Body, int BodyStartLine) TryParse(string markdown)
     {
         var normalized = markdown.Replace("\r\n", "\n").Replace('\r', '\n');
-        if (!normalized.StartsWith("---\n", StringComparison.Ordinal) &&
-            normalized != "---")
+        if (!normalized.StartsWith("---\n", StringComparison.Ordinal))
         {
             return (new MarkdownFrontMatter(), markdown, 1);
         }
 
-        var end = normalized.IndexOf("\n---\n", 4, StringComparison.Ordinal);
+        var end = normalized.IndexOf("\n---\n", 3, StringComparison.Ordinal);
         int yamlEndExclusive;
         int bodyStartIndex;
         if (end < 0)
@@ -39,7 +38,7 @@ internal static class FrontMatterParser
             bodyStartIndex = end + "\n---\n".Length;
         }
 
-        var yaml = normalized[4..yamlEndExclusive];
+        var yaml = normalized[4..Math.Max(4, yamlEndExclusive)];
         var map = ParseSimpleYaml(yaml);
 
         var matter = new MarkdownFrontMatter

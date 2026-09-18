@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose a document intelligence capability or compatibility improvement.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Consumer problem
+      description: What are you building, and what is currently missing?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include example input and desired output. Keep I/O and application policy outside the engine.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and compatibility
+      description: Existing workarounds and potential impact on other consumers.

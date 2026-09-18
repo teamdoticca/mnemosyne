@@ -5,6 +5,26 @@ namespace Mnemosyne.UnitTests;
 
 public class LinkResolveTests
 {
+    [Theory]
+    [InlineData("/README.md", "README.md")]
+    [InlineData("/guides/../README.md", "README.md")]
+    [InlineData("../README.md", "README.md")]
+    [InlineData("./guide.md", "docs/guide.md")]
+    [InlineData("guide.md", "docs/guide.md")]
+    [InlineData(".\\guide.md", "docs/guide.md")]
+    [InlineData("../guides/./install.md", "guides/install.md")]
+    public void Resolves_root_relative_and_dot_segment_paths(string target, string indexedPath)
+    {
+        var document = MnemosyneFacade.Parse(
+            $"# Document\n[guide]({target}#install)",
+            new MarkdownParseOptions { Path = "docs/README.md" });
+        var index = new MarkdownPathIndex(
+            [indexedPath],
+            new Dictionary<string, IEnumerable<string>> { [indexedPath] = ["install"] });
+
+        MnemosyneFacade.ResolveLinks(document, index).Should().BeEmpty();
+    }
+
     [Fact]
     public void Classifies_missing_target_and_anchor_skips_external()
     {

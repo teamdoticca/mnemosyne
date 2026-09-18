@@ -1,11 +1,11 @@
 # Mnemosyne
 
-Portable **markdown language intelligence** library for Mnemon (and future NuGet consumers).
+Portable **Markdown language intelligence** library for .NET 10 consumers, including Mnemon. Package: `Doticca.Mnemosyne`.
 
 ## Boundary
 
 | In | Out |
-|----|-----|
+|  --- -  | -- --- |
 | Markdown text + optional path | Structured DTOs |
 | Optional path index (strings) | Link diagnostics |
 | Two document snapshots | Evolution candidates (incl. Moved) |
@@ -16,9 +16,11 @@ Parser implementation is **internal** and swappable behind `IMarkdownDocumentPar
 
 ## Public surface
 
-- `IMarkdownDocumentParser` / `MarkdownDocumentParser` — parse headings, blurb, front-matter, tags, raw links
-- `IMarkdownLinkResolver` / `MarkdownLinkResolver` — resolve vs `MarkdownPathIndex`
-- `IMarkdownSnapshotDiffer` / `MarkdownSnapshotDiffer` — diff two document sets
+- `IMarkdownDocumentParser` — parse headings, blurb, front-matter, tags, raw links; explain classification
+- `IMarkdownLinkResolver` — resolve against `MarkdownPathIndex`
+- `IMarkdownSnapshotDiffer` — diff two document sets
 - `MnemosyneFacade` — convenience defaults
 
-Mnemon language id stays `markdown`; this package does not own persistence.
+Default implementation classes are internal. The facade exposes get-only shared instances; consumers needing alternatives implement the interfaces in their own applications.
+
+See the [API contract](../../docs/API.md), [contributor guide](../../CONTRIBUTING.md), and [MIT license](../../LICENSE). This package does not own persistence.
