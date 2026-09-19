@@ -11,7 +11,7 @@
     <AssemblyOriginatorKeyFile>Mnemosyne.public.snk</AssemblyOriginatorKeyFile>
     <Description>Deterministic Markdown document structure, classification, link diagnostics, and snapshot differences. No filesystem, Git, database, or UI dependencies.</Description>
     <PackageId>Doticca.Mnemosyne</PackageId>
-    <Version>0.1.4</Version>
+    <Version>0.1.5</Version>
     <Authors>Doticca SRL</Authors>
     <Company>Doticca SRL</Company>
     <IsPackable>true</IsPackable>
