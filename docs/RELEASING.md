@@ -1,6 +1,6 @@
 # Release checklist
 
-The source tree prepares version `0.1.4`; version `0.1.3` is already published. Never overwrite an existing NuGet version or move a published tag.
+The source tree prepares version `0.1.5`; versions `0.1.3` and `0.1.4` are already reserved. Never overwrite an existing NuGet version or move a published tag.
 
 ## Setup status (2026-09-18)
 
@@ -24,15 +24,15 @@ These are GitHub/nuget.org settings, not files that take effect on checkout. An 
 
 ## Preparing a release
 
-1. Update `Version` in `src/Mnemosyne/Mnemosyne.csproj` using three-component SemVer. A patch preserves API compatibility; a breaking 0.x change needs a minor bump and migration notes. The current release candidate is `0.1.4`; `0.1.3` must not be republished.
+1. Update `Version` in `src/Mnemosyne/Mnemosyne.csproj` using three-component SemVer. A patch preserves API compatibility; a breaking 0.x change needs a minor bump and migration notes. The current release candidate is `0.1.5`; `0.1.3` and `0.1.4` must not be republished.
 2. Date the corresponding unreleased changelog section and document user-visible behavior changes.
 3. Run `pwsh -File scripts/verify.ps1` from a clean checkout. Review coverage, API compatibility, license/source metadata, and the package smoke result.
 4. Review dependency, CodeQL, and secret-scanning findings. Check examples against the new package.
 5. Merge through a PR after all three OS validation jobs pass. This produces only a `-ci` GitHub Packages build, not a nuget.org release.
-6. Create and push the matching tag, for example `v0.1.4`, on the reviewed `main` commit. The tag run validates it and publishes to GitHub Packages.
+6. Create and push the matching tag, for example `v0.1.5`, on the reviewed `main` commit. The tag run validates it and publishes to GitHub Packages.
 7. Open Actions > pack-nuget > Run workflow, select that tag, and set `publish` to true. Branch dispatches cannot publish to nuget.org. Approve the `nuget` environment deployment.
 8. Verify nuget.org ingestion and symbol availability, the GitHub release and attached artifacts, and installation in a clean consumer. Check that repository commit metadata matches the tag.
-9. For the next release, advance the source version and, after reviewing compatibility, update `PackageValidationBaselineVersion` to the release just published. The current baseline is `0.1.3`.
+9. For the next release, advance the source version and, after reviewing compatibility, update `PackageValidationBaselineVersion` to the release just published. The current baseline is `0.1.4`.
 
 ## Pipeline behavior and recovery
 

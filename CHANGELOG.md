@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.4 - Unreleased
+## 0.1.5 - Unreleased
 
 ### Fixed
 
@@ -22,6 +22,10 @@
 - Test assertions use the Apache-2.0-licensed FluentAssertions 6 line.
 - .NET 10 support, Markdown subset limitations, and 0.x compatibility expectations are explicit.
 - .NET 8, .NET 9, and .NET 10 package targets are verified by build and consumer smoke tests.
+
+## 0.1.4
+
+- Multi-target package preparation was merged, but the release publish was blocked by a missing GitHub Actions OIDC permission and the immutable `v0.1.4` tag remains unpublished.
 
 The public API remains compatible with `0.1.2.17`. The two parser/resolver fixes above intentionally correct previously erroneous results.
 
