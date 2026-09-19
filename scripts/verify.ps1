@@ -38,7 +38,10 @@ try {
         throw 'Coverage must be at least 80% lines and 70% branches.'
     }
 
-    Invoke-DotNet pack src/Mnemosyne/Mnemosyne.csproj --configuration Release --no-restore --output $output "-p:PackageVersion=$PackageVersion"
+    foreach ($targetFramework in @('net8.0', 'net9.0', 'net10.0')) {
+        Invoke-DotNet build src/Mnemosyne/Mnemosyne.csproj --configuration Release --framework $targetFramework --no-restore
+    }
+    Invoke-DotNet pack src/Mnemosyne/Mnemosyne.csproj --configuration Release --no-restore --no-build --output $output "-p:PackageVersion=$PackageVersion"
     $package = Join-Path $output "Doticca.Mnemosyne.$PackageVersion.nupkg"
     $symbols = Join-Path $output "Doticca.Mnemosyne.$PackageVersion.snupkg"
     if (-not (Test-Path $symbols)) {
@@ -47,7 +50,16 @@ try {
 
     $archive = [IO.Compression.ZipFile]::OpenRead($package)
     try {
-        foreach ($required in @('LICENSE', 'README.md', 'lib/net10.0/Mnemosyne.dll', 'lib/net10.0/Mnemosyne.xml')) {
+        foreach ($required in @(
+            'LICENSE',
+            'README.md',
+            'lib/net8.0/Mnemosyne.dll',
+            'lib/net8.0/Mnemosyne.xml',
+            'lib/net9.0/Mnemosyne.dll',
+            'lib/net9.0/Mnemosyne.xml',
+            'lib/net10.0/Mnemosyne.dll',
+            'lib/net10.0/Mnemosyne.xml'
+        )) {
             if ($null -eq $archive.GetEntry($required)) {
                 throw "Package is missing $required."
             }
@@ -76,8 +88,11 @@ try {
     }
 
     $consumer = 'tests/Mnemosyne.PackageSmoke/Mnemosyne.PackageSmoke.csproj'
-    Invoke-DotNet restore $consumer --source $output --packages (Join-Path $output 'consumer-packages') "-p:MnemosynePackageVersion=$PackageVersion" '-p:NuGetAudit=false'
-    Invoke-DotNet run --project $consumer --configuration Release --no-restore "-p:MnemosynePackageVersion=$PackageVersion"
+    $consumerPackages = Join-Path $output 'consumer-packages'
+    Invoke-DotNet restore $consumer --source $output --packages $consumerPackages "-p:MnemosynePackageVersion=$PackageVersion" '-p:NuGetAudit=false'
+    foreach ($targetFramework in @('net8.0', 'net9.0', 'net10.0')) {
+        Invoke-DotNet run --project $consumer --framework $targetFramework --configuration Release --no-restore "-p:MnemosynePackageVersion=$PackageVersion"
+    }
     Write-Host "Verified package: $package"
 }
 finally {

@@ -2,7 +2,7 @@
 
 ## Support and compatibility
 
-Mnemosyne targets .NET 10 with no runtime NuGet dependencies. The CI matrix covers Windows, Linux, and macOS. Other target frameworks, Native AOT, trimming, and browser/WASM are not verified. Multi-targeting requires evidence from consumers and dedicated tests, not just an additional target declaration.
+Mnemosyne targets .NET 8, .NET 9, and .NET 10 with no runtime NuGet dependencies. The CI matrix covers Windows, Linux, and macOS, and package consumers are smoke-tested on all three target frameworks. Native AOT, trimming, and browser/WASM are not verified.
 
 During 0.x, patch releases preserve the public API. Minor releases may introduce breaking changes with changelog and migration notes. Documented bug fixes can change incorrect outputs in a patch release. Consumers should pin package versions and test their own document corpus when upgrading.
 

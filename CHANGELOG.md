@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.3 - Unreleased
+## 0.1.4 - Unreleased
 
 ### Fixed
 
@@ -21,6 +21,7 @@
 - NuGet publication requires an explicit dispatch on a version-matching tag.
 - Test assertions use the Apache-2.0-licensed FluentAssertions 6 line.
 - .NET 10 support, Markdown subset limitations, and 0.x compatibility expectations are explicit.
+- .NET 8, .NET 9, and .NET 10 package targets are verified by build and consumer smoke tests.
 
 The public API remains compatible with `0.1.2.17`. The two parser/resolver fixes above intentionally correct previously erroneous results.
 

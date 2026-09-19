@@ -1,14 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Mnemosyne</RootNamespace>
     <AssemblyName>Mnemosyne</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>Mnemosyne.public.snk</AssemblyOriginatorKeyFile>
     <Description>Deterministic Markdown document structure, classification, link diagnostics, and snapshot differences. No filesystem, Git, database, or UI dependencies.</Description>
     <PackageId>Doticca.Mnemosyne</PackageId>
-    <Version>0.1.3</Version>
+    <Version>0.1.4</Version>
     <Authors>Doticca SRL</Authors>
     <Company>Doticca SRL</Company>
     <IsPackable>true</IsPackable>
@@ -22,7 +25,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <EnablePackageValidation>true</EnablePackageValidation>
-    <PackageValidationBaselineVersion>0.1.2.17</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>0.1.3</PackageValidationBaselineVersion>
     <PackageTags>markdown;language;parser;semantics;links;doticca</PackageTags>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>

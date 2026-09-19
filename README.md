@@ -16,7 +16,7 @@ Path index           -> resolve links -> missing targets / anchors
 Before + after       -> diff -> added / removed / moved / changed documents
 ```
 
-Typical consumers: repository explorers, planning indexes, agent tooling, IDE overlays, and applications such as [Mnemon](https://github.com/teamdoticca/Mnemon).
+Typical consumers: repository explorers, planning indexes, agent tooling, IDE overlays, and applications such as [Mnemon](https://mnemon.doticca.com).
 
 **Status: early development (0.x).** This is a focused document intelligence engine, not a complete CommonMark/GFM parser or YAML implementation. Patch releases preserve the public API; minor releases may change contracts with migration notes. See the [API contract and limitations](docs/API.md) before integrating.
 
@@ -42,9 +42,9 @@ Package id: **`Doticca.Mnemosyne`** on [nuget.org](https://www.nuget.org/package
 dotnet add package Doticca.Mnemosyne
 ```
 
-For reproducible application builds, pin an exact version from the [published version history](https://www.nuget.org/packages/Doticca.Mnemosyne#versions-body-tab). The source version on `main` may be newer than the latest published package.
+For reproducible application builds, pin an exact version from the [published version history](https://www.nuget.org/packages/Doticca.Mnemosyne#versions-body-tab). The source version on `main` may be newer than the latest published package; the next release prepared here is `0.1.4`.
 
-The package targets **.NET 10** and contains managed code only, with no runtime NuGet dependencies or native assets. CI is configured for Windows, Linux, and macOS. .NET 8/9, Native AOT, trimming, and browser/WASM are not currently supported or verified targets.
+The package targets **.NET 8, .NET 9, and .NET 10** and contains managed code only, with no runtime NuGet dependencies or native assets. CI is configured for Windows, Linux, and macOS. Native AOT, trimming, and browser/WASM are not currently supported or verified targets.
 
 ---
 
@@ -195,6 +195,6 @@ Maintained by Doticca, with [@doticca](https://github.com/doticca) as the curren
 - [src/Mnemosyne/README.md](src/Mnemosyne/README.md) - package boundary and public surface
 - [docs/API.md](docs/API.md) - supported syntax, contracts, and limitations
 - [CHANGELOG.md](CHANGELOG.md) - release history and pending changes
-- [Mnemon](https://github.com/teamdoticca/Mnemon) - primary consumer
+- [Mnemon](https://mnemon.doticca.com) - primary consumer
 
 Source and package license: [MIT](LICENSE). Test and build dependencies retain their own licenses.
