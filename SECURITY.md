@@ -20,4 +20,4 @@ Path normalization is lexical and case-insensitive; it is not a filesystem sandb
 
 ## Repository protections
 
-CI uses read-only permissions for validation and separate publishing jobs. NuGet publishing uses short-lived trusted-publishing credentials, not a checked-in API key. Dependency updates and CodeQL are configured in `.github`; repository administrators must keep secret scanning, push protection, and private reporting enabled.
+CI uses read-only permissions for validation and separate publishing jobs. NuGet publishing uses short-lived trusted-publishing credentials, not a checked-in API key. The assembly is public strong-name signed for consumers that require a strong-named dependency; this is separate from optional NuGet package author signing. Dependency updates and CodeQL are configured in `.github`; repository administrators must keep secret scanning, push protection, and private reporting enabled.

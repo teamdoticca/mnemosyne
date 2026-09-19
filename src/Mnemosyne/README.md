@@ -1,6 +1,6 @@
 # Mnemosyne
 
-Portable **Markdown language intelligence** library for .NET 10 consumers, including Mnemon. Package: `Doticca.Mnemosyne`.
+Portable **Markdown language intelligence** library for .NET 8, .NET 9, and .NET 10 consumers, including Mnemon. Package: `Doticca.Mnemosyne`.
 
 ## Boundary
 
