@@ -89,7 +89,18 @@ try {
 
     $consumer = 'tests/Mnemosyne.PackageSmoke/Mnemosyne.PackageSmoke.csproj'
     $consumerPackages = Join-Path $output 'consumer-packages'
-    Invoke-DotNet restore $consumer --source $output --packages $consumerPackages "-p:MnemosynePackageVersion=$PackageVersion" '-p:NuGetAudit=false'
+        $consumerConfig = Join-Path $output 'consumer.nuget.config'
+        @"
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <packageSources>
+        <clear />
+        <add key="local" value="$output" />
+        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+    </packageSources>
+</configuration>
+"@ | Set-Content -LiteralPath $consumerConfig -Encoding utf8
+        Invoke-DotNet restore $consumer --configfile $consumerConfig --packages $consumerPackages "-p:MnemosynePackageVersion=$PackageVersion" '-p:NuGetAudit=false'
     foreach ($targetFramework in @('net8.0', 'net9.0', 'net10.0')) {
         Invoke-DotNet run --project $consumer --framework $targetFramework --configuration Release --no-restore "-p:MnemosynePackageVersion=$PackageVersion"
     }
