@@ -260,40 +260,37 @@ internal static class SignificanceTagger
             return true;
         }
 
-        if (lower.Contains("/.cursor/rules/", StringComparison.Ordinal) ||
-            lower.StartsWith(".cursor/rules/", StringComparison.Ordinal) ||
-            lower.Contains("/.cursor/skills/", StringComparison.Ordinal) ||
-            lower.StartsWith(".cursor/skills/", StringComparison.Ordinal))
+        if (PathHasPrefix(lower, ".cursor/rules/") ||
+            PathHasPrefix(lower, ".cursor/skills/"))
         {
             return true;
         }
 
-        if (lower.Contains("/.vscode/rules/", StringComparison.Ordinal) ||
-            lower.StartsWith(".vscode/rules/", StringComparison.Ordinal))
+        if (PathHasPrefix(lower, ".vscode/rules/"))
         {
             return true;
         }
 
-        if (lower.Contains("/.github/copilot-instructions.md", StringComparison.Ordinal) ||
+        if (PathHasPrefix(lower, ".github/copilot-instructions.md") ||
             fileLower == "copilot-instructions.md")
         {
             return true;
         }
 
-        if (lower.Contains("/.github/instructions/", StringComparison.Ordinal))
+        if (PathHasPrefix(lower, ".github/instructions/"))
         {
             return true;
         }
 
-        if (lower.Contains("/.continue/rules/", StringComparison.Ordinal) ||
-            lower.Contains("/.clinerules/", StringComparison.Ordinal) ||
-            lower.Contains("/.claude/", StringComparison.Ordinal))
+        if (PathHasPrefix(lower, ".continue/rules/") ||
+            PathHasPrefix(lower, ".clinerules/") ||
+            PathHasPrefix(lower, ".claude/"))
         {
             return true;
         }
 
         return path.EndsWith(".mdc", StringComparison.OrdinalIgnoreCase) &&
-               lower.Contains("/.cursor/", StringComparison.Ordinal);
+               PathHasPrefix(lower, ".cursor/");
     }
 
     private static bool IsBranchingControl(string path, string fileLower, string lower)
@@ -303,7 +300,7 @@ internal static class SignificanceTagger
             return true;
         }
 
-        if (!lower.Contains("/.github/", StringComparison.Ordinal))
+        if (!PathHasPrefix(lower, ".github/"))
         {
             return false;
         }
@@ -314,6 +311,14 @@ internal static class SignificanceTagger
                fileLower.Contains("pull-request", StringComparison.Ordinal) ||
                fileLower is "codeowners";
     }
+
+    /// <summary>
+    /// True when <paramref name="lower"/> is under <paramref name="prefix"/> at repo root
+    /// (<c>prefix…</c>) or nested (<c>…/prefix…</c>).
+    /// </summary>
+    private static bool PathHasPrefix(string lower, string prefix) =>
+        lower.StartsWith(prefix, StringComparison.Ordinal) ||
+        lower.Contains('/' + prefix, StringComparison.Ordinal);
 
     private static bool RegexFileMatch(string fileLower, string pattern) =>
         System.Text.RegularExpressions.Regex.IsMatch(fileLower, pattern);
