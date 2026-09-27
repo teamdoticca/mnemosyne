@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.6 - Unreleased
+
+### Added
+
+- Document lifecycles `Blocked` and `Deferred` for gate / evidence status.
+- Default status aliases: `blocked`/`block` → `Blocked`, `deferred`/`defer` → `Deferred`, `pass`/`passed` → `Done`.
+- Link role `Supersedes` (link text containing `supersedes` / `replaces`).
+- Builtin path tag rule `**/evidence/**` → `Spec`.
+- Repo guidance pins in group `exceptions` for `LIVE_EXCEPTIONS.md` / `exceptions.md` / `TIP_EXCEPTIONS.md`.
+
+### Changed
+
+- Status token `blocked` no longer maps to `Active`.
+
 ## 0.1.5 - Unreleased
 
 ### Fixed
