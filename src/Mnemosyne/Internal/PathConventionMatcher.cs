@@ -14,13 +14,36 @@ internal static class PathConventionMatcher
             return false;
         }
 
+        // **/segment/** → any path under a folder named segment (any depth).
+        if (g.StartsWith("**/", StringComparison.Ordinal) &&
+            g.EndsWith("/**", StringComparison.Ordinal) &&
+            g.Length > 5)
+        {
+            var segment = g[3..^3];
+            if (segment.Length == 0 || segment.Contains('*'))
+            {
+                // Fall through to regex for exotic patterns.
+            }
+            else
+            {
+                return p.Equals(segment, StringComparison.Ordinal) ||
+                       p.StartsWith(segment + "/", StringComparison.Ordinal) ||
+                       p.Contains("/" + segment + "/", StringComparison.Ordinal) ||
+                       p.EndsWith("/" + segment, StringComparison.Ordinal);
+            }
+        }
+
         if (g.EndsWith("/**", StringComparison.Ordinal))
         {
             var prefix = g[..^3];
-            return p == prefix || p.StartsWith(prefix + "/", StringComparison.Ordinal);
+            // Prefix itself may contain ** (e.g. docs/**/evidence/**) — use regex path.
+            if (!prefix.Contains('*'))
+            {
+                return p == prefix || p.StartsWith(prefix + "/", StringComparison.Ordinal);
+            }
         }
 
-        if (g.EndsWith("/*", StringComparison.Ordinal))
+        if (g.EndsWith("/*", StringComparison.Ordinal) && !g[..^2].Contains('*'))
         {
             var prefix = g[..^2];
             if (!p.StartsWith(prefix + "/", StringComparison.Ordinal))

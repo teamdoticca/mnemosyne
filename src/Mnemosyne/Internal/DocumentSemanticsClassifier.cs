@@ -359,6 +359,18 @@ internal static class DocumentSemanticsClassifier
             return aliased;
         }
 
+        if (s.Contains("blocked", StringComparison.OrdinalIgnoreCase) ||
+            s.Equals("block", StringComparison.OrdinalIgnoreCase))
+        {
+            return DocumentLifecycle.Blocked;
+        }
+
+        if (s.Contains("deferred", StringComparison.OrdinalIgnoreCase) ||
+            s.Equals("defer", StringComparison.OrdinalIgnoreCase))
+        {
+            return DocumentLifecycle.Deferred;
+        }
+
         if (s.Contains("active", StringComparison.OrdinalIgnoreCase) ||
             s.Contains("in progress", StringComparison.OrdinalIgnoreCase) ||
             s.Equals("in_progress", StringComparison.OrdinalIgnoreCase))
@@ -378,7 +390,9 @@ internal static class DocumentSemanticsClassifier
 
         if (s.Contains("done", StringComparison.OrdinalIgnoreCase) ||
             s.Contains("complete", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("shipped", StringComparison.OrdinalIgnoreCase))
+            s.Contains("shipped", StringComparison.OrdinalIgnoreCase) ||
+            s.Equals("pass", StringComparison.OrdinalIgnoreCase) ||
+            s.Equals("passed", StringComparison.OrdinalIgnoreCase))
         {
             return DocumentLifecycle.Done;
         }
@@ -415,7 +429,13 @@ internal static class DocumentSemanticsClassifier
                 line.Equals("in_progress", StringComparison.OrdinalIgnoreCase) ||
                 line.Equals("in progress", StringComparison.OrdinalIgnoreCase) ||
                 line.Equals("draft", StringComparison.OrdinalIgnoreCase) ||
-                line.Equals("active", StringComparison.OrdinalIgnoreCase))
+                line.Equals("active", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("blocked", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("block", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("deferred", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("defer", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("pass", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("passed", StringComparison.OrdinalIgnoreCase))
             {
                 return line;
             }
@@ -437,7 +457,8 @@ internal static class DocumentSemanticsClassifier
         foreach (var raw in bodyLines)
         {
             var line = raw.Trim();
-            if (!line.StartsWith('|'))
+            // GFM allows tables without a leading pipe ("Epic | Status").
+            if (!line.Contains('|', StringComparison.Ordinal))
             {
                 statusCol = null;
                 continue;
@@ -479,9 +500,19 @@ internal static class DocumentSemanticsClassifier
             return null;
         }
 
+        if (tokens.Exists(t => t is "blocked"))
+        {
+            return "blocked";
+        }
+
         if (tokens.Exists(t => t is "active"))
         {
             return "active";
+        }
+
+        if (tokens.Exists(t => t is "deferred"))
+        {
+            return "deferred";
         }
 
         if (tokens.Exists(t => t is "planned"))
@@ -558,9 +589,37 @@ internal static class DocumentSemanticsClassifier
                 token = "draft";
                 return true;
             }
+
+            if (alias.Equals("Blocked", StringComparison.OrdinalIgnoreCase))
+            {
+                token = "blocked";
+                return true;
+            }
+
+            if (alias.Equals("Deferred", StringComparison.OrdinalIgnoreCase))
+            {
+                token = "deferred";
+                return true;
+            }
         }
 
         var lower = s.ToLowerInvariant();
+        if (lower.Equals("blocked", StringComparison.Ordinal) ||
+            lower.Equals("block", StringComparison.Ordinal) ||
+            lower.StartsWith("blocked ", StringComparison.Ordinal))
+        {
+            token = "blocked";
+            return true;
+        }
+
+        if (lower.Equals("deferred", StringComparison.Ordinal) ||
+            lower.Equals("defer", StringComparison.Ordinal) ||
+            lower.StartsWith("deferred ", StringComparison.Ordinal))
+        {
+            token = "deferred";
+            return true;
+        }
+
         if (lower.StartsWith("in progress", StringComparison.Ordinal) ||
             lower.StartsWith("in_progress", StringComparison.Ordinal) ||
             lower.Equals("active", StringComparison.Ordinal) ||
@@ -592,6 +651,8 @@ internal static class DocumentSemanticsClassifier
             lower.Equals("complete", StringComparison.Ordinal) ||
             lower.Equals("completed", StringComparison.Ordinal) ||
             lower.Equals("shipped", StringComparison.Ordinal) ||
+            lower.Equals("pass", StringComparison.Ordinal) ||
+            lower.Equals("passed", StringComparison.Ordinal) ||
             lower.StartsWith("done ", StringComparison.Ordinal) ||
             lower.StartsWith("done—", StringComparison.Ordinal) ||
             lower.StartsWith("done-", StringComparison.Ordinal) ||

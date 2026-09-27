@@ -26,7 +26,7 @@ public sealed class MarkdownConventionsOptions
 
     public IReadOnlyList<string> StatusTableColumns { get; init; } = [];
 
-    /// <summary>Lowercase status cell → lifecycle name (Active|Planned|Done|Draft).</summary>
+    /// <summary>Lowercase status cell → lifecycle name (Active|Planned|Done|Draft|Blocked|Deferred).</summary>
     public IReadOnlyDictionary<string, string> StatusTokenAliases { get; init; } =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -75,7 +75,10 @@ public sealed class MarkdownConventionsOptions
                 new("docs/PRODUCT.md", "Product"),
                 new("docs/product.md", "Product"),
             ],
-            PathTagRules = [],
+            PathTagRules =
+            [
+                new("**/evidence/**", "Spec"),
+            ],
             PathDocKindRules = [],
             StatusTableColumns = ["Status", "State"],
             StatusTokenAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -83,9 +86,14 @@ public sealed class MarkdownConventionsOptions
                 ["shipped"] = "Done",
                 ["complete"] = "Done",
                 ["completed"] = "Done",
+                ["pass"] = "Done",
+                ["passed"] = "Done",
                 ["wip"] = "Active",
                 ["ip"] = "Active",
-                ["blocked"] = "Active",
+                ["blocked"] = "Blocked",
+                ["block"] = "Blocked",
+                ["deferred"] = "Deferred",
+                ["defer"] = "Deferred",
             },
             KeySectionNames =
             [
@@ -124,6 +132,10 @@ public sealed class MarkdownConventionsOptions
                 new("Runbook", "DEVELOPING.md", "onboarding", 10),
                 new("Runbook", "docs/development.md", "onboarding", 11),
                 new("Runbook", "docs/runbooks/README.md", "onboarding", 12),
+                new("Spec", "docs/LIVE_EXCEPTIONS.md", "exceptions", 0),
+                new("Spec", "LIVE_EXCEPTIONS.md", "exceptions", 1),
+                new("Spec", "docs/exceptions.md", "exceptions", 2),
+                new("Spec", "docs/TIP_EXCEPTIONS.md", "exceptions", 3),
             ],
             ShowActiveEpicsInGuidance = true,
             ShowDoneInGuidance = "count",

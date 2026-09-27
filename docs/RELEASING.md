@@ -24,7 +24,7 @@ These are GitHub/nuget.org settings, not files that take effect on checkout. An 
 
 ## Preparing a release
 
-1. Update `Version` in `src/Mnemosyne/Mnemosyne.csproj` using three-component SemVer. A patch preserves API compatibility; a breaking 0.x change needs a minor bump and migration notes. The current release candidate is `0.1.5`; `0.1.3` and `0.1.4` must not be republished.
+1. Update `Version` in `src/Mnemosyne/Mnemosyne.csproj` using three-component SemVer. A patch preserves API compatibility; a breaking 0.x change needs a minor bump and migration notes. The current release candidate is `0.1.6`; `0.1.3` and `0.1.4` must not be republished.
 2. Date the corresponding unreleased changelog section and document user-visible behavior changes.
 3. Run `pwsh -File scripts/verify.ps1` from a clean checkout. Review coverage, API compatibility, license/source metadata, and the package smoke result.
 4. Review dependency, CodeQL, and secret-scanning findings. Check examples against the new package.

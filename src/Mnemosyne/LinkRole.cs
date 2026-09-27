@@ -10,6 +10,8 @@ public enum LinkRole
     DependsOn = 2,
     Parent = 3,
     SeeAlso = 4,
+    /// <summary>Decision / doc that replaces an older one (ADR supersession).</summary>
+    Supersedes = 5,
 }
 
 /// <summary>Deterministic link-role heuristics (no LLM).</summary>
@@ -37,6 +39,14 @@ public static class LinkRoleClassifier
         }
 
         var textLower = link.Text.Trim().ToLowerInvariant();
+        if (textLower.Contains("supersedes", StringComparison.Ordinal) ||
+            textLower.Contains("supersede", StringComparison.Ordinal) ||
+            textLower.Contains("replaces", StringComparison.Ordinal) ||
+            textLower.Equals("superseded", StringComparison.Ordinal))
+        {
+            return LinkRole.Supersedes;
+        }
+
         if (textLower.Contains("depends on", StringComparison.Ordinal) ||
             textLower.Contains("depends", StringComparison.Ordinal))
         {
@@ -79,6 +89,7 @@ public static class LinkRoleClassifier
         LinkRole.DependsOn => "DependsOn",
         LinkRole.Parent => "Parent",
         LinkRole.SeeAlso => "SeeAlso",
+        LinkRole.Supersedes => "Supersedes",
         _ => "Generic",
     };
 

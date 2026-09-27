@@ -17,6 +17,10 @@ public enum DocumentLifecycle
     Planned = 2,
     Done = 3,
     Draft = 4,
+    /// <summary>Work is impeded (gate fail, missing dependency) — not Active.</summary>
+    Blocked = 5,
+    /// <summary>Consciously postponed — not Done and not Active.</summary>
+    Deferred = 6,
 }
 
 public sealed class DocumentKeySection
