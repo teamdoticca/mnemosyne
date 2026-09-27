@@ -112,4 +112,22 @@ public class LinkRoleClassifierTests
             .Should()
             .Be(LinkRole.Generic);
     }
+
+    [Fact]
+    public void Classifies_supersedes_link_text_as_supersedes()
+    {
+        var link = new MarkdownLink
+        {
+            Text = "Supersedes ADR-001",
+            Target = "./adr-001-old.md",
+            Line = 12,
+        };
+
+        LinkRoleClassifier.Classify(
+                "docs/adr/adr-002.md",
+                link,
+                "docs/adr/adr-001-old.md")
+            .Should()
+            .Be(LinkRole.Supersedes);
+    }
 }

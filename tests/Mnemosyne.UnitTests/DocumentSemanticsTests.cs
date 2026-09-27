@@ -249,4 +249,46 @@ public class DocumentSemanticsTests
         doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Done);
         doc.Semantics.StatusRaw.Should().Be("done");
     }
+
+    [Fact]
+    public void Blocked_status_maps_to_blocked_lifecycle()
+    {
+        var doc = MnemosyneFacade.Parse(
+            """
+            # Evidence — CIAM host
+
+            **Status:** Blocked
+            """,
+            new MarkdownParseOptions { Path = "docs/epics/m99/evidence/08-ciam.md" });
+
+        doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Blocked);
+    }
+
+    [Fact]
+    public void Deferred_status_maps_to_deferred_lifecycle()
+    {
+        var doc = MnemosyneFacade.Parse(
+            """
+            # Evidence — Graph mirror
+
+            **Status:** Deferred
+            """,
+            new MarkdownParseOptions { Path = "docs/epics/m99/evidence/09-graph.md" });
+
+        doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Deferred);
+    }
+
+    [Fact]
+    public void Pass_status_alias_maps_to_done()
+    {
+        var doc = MnemosyneFacade.Parse(
+            """
+            # Evidence — DNS
+
+            **Status:** Pass
+            """,
+            new MarkdownParseOptions { Path = "docs/epics/m99/evidence/01-dns.md" });
+
+        doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Done);
+    }
 }
