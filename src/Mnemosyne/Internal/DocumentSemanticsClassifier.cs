@@ -429,7 +429,13 @@ internal static class DocumentSemanticsClassifier
                 line.Equals("in_progress", StringComparison.OrdinalIgnoreCase) ||
                 line.Equals("in progress", StringComparison.OrdinalIgnoreCase) ||
                 line.Equals("draft", StringComparison.OrdinalIgnoreCase) ||
-                line.Equals("active", StringComparison.OrdinalIgnoreCase))
+                line.Equals("active", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("blocked", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("block", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("deferred", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("defer", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("pass", StringComparison.OrdinalIgnoreCase) ||
+                line.Equals("passed", StringComparison.OrdinalIgnoreCase))
             {
                 return line;
             }
