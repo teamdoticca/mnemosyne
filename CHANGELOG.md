@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.6 - Unreleased
+## 0.1.6 - 2026-09-27
 
 ### Added
 
@@ -15,8 +15,14 @@
 ### Changed
 
 - Status token `blocked` no longer maps to `Active`.
+- `mnemosyne.clearBuiltIns` clears path heuristics only; explicit plain `tags:` and `mnemosyne.tags` still apply.
 
-## 0.1.5 - Unreleased
+### Fixed
+
+- Root-relative tool/agent paths (`.github/…`, `.cursor/…`, `security/…`, `adr/…`, `specs/…`, `runbooks/…`, `onboarding/…`) match the same heuristics as nested `…/<prefix>/…` paths.
+- GFM status tables without a leading `|` still aggregate to a document lifecycle.
+
+## 0.1.5 - 2026-09-19
 
 ### Fixed
 

@@ -34,6 +34,8 @@ Recognized keys are `title`, `status`, `tags`, `owner`, `commitSha`, `mnemosyne.
 
 `MarkdownConventionsOptions` controls path recognition, status aliases, and guidance options. `MnemosyneFacade.Explain` returns the parsed document and fired classification rules. Semantic values are deterministic heuristics derived from supplied text, paths, and conventions; they do not prove that a plan is active or that a named owner is authorized.
 
+Document lifecycle values are `Unknown`, `Draft`, `Planned`, `Active`, `Blocked`, `Deferred`, and `Done`. Default status aliases include gate tokens (`blocked`/`block`, `deferred`/`defer`, `pass`/`passed`). Builtin path rules tag `**/evidence/**` as `Spec` and pin `LIVE_EXCEPTIONS.md` / `exceptions.md` / `TIP_EXCEPTIONS.md` under guidance group `exceptions`. Link roles are `Generic`, `Plans`, `DependsOn`, `Parent`, `SeeAlso`, and `Supersedes` (link text containing `supersedes` / `replaces`). `mnemosyne.clearBuiltIns` suppresses path heuristics only; plain `tags:` and `mnemosyne.tags` still apply.
+
 ## Link resolution
 
 `ResolveLinks(document, index)` returns missing-target or missing-anchor diagnostics; valid and external links produce no diagnostic. The caller must populate paths and, where needed, anchor sets for other documents. Missing anchor data can therefore produce a missing-anchor diagnostic even when the actual file has that heading.

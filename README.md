@@ -42,7 +42,7 @@ Package id: **`Doticca.Mnemosyne`** on [nuget.org](https://www.nuget.org/package
 dotnet add package Doticca.Mnemosyne
 ```
 
-For reproducible application builds, pin an exact version from the [published version history](https://www.nuget.org/packages/Doticca.Mnemosyne#versions-body-tab). The source version on `main` may be newer than the latest published package; the next release prepared here is `0.1.6`.
+For reproducible application builds, pin an exact version from the [published version history](https://www.nuget.org/packages/Doticca.Mnemosyne#versions-body-tab). The latest published release is `0.1.6`. The source version on `main` may advance ahead of nuget.org while the next package is prepared.
 
 The package targets **.NET 8, .NET 9, and .NET 10** and contains managed code only, with no runtime NuGet dependencies or native assets. CI is configured for Windows, Linux, and macOS. Native AOT, trimming, and browser/WASM are not currently supported or verified targets.
 
@@ -153,11 +153,12 @@ Mnemosyne exposes deterministic document semantics:
 | Concept | Values |
 | --------- | -------- |
 | Document kind | `Unknown`, `Index`, `Epic`, `Brief`, `Policy`, `Reference` |
-| Lifecycle | `Unknown`, `Active`, `Planned`, `Done`, `Draft` |
+| Lifecycle | `Unknown`, `Active`, `Planned`, `Done`, `Draft`, `Blocked`, `Deferred` |
+| Link role | `Generic`, `Plans`, `DependsOn`, `Parent`, `SeeAlso`, `Supersedes` |
 | Additional context | `PlanningRef`, `Owner`, `StatusRaw`, `KeySections` |
 | Significance | `SignificanceTag` values inferred from paths, content, and optional front matter |
 
-Front matter can provide explicit status, owner, tags, planning references, guidance pins, guidance groups, and commit-note identity. The allowlisted fields are parsed into typed DTOs; arbitrary front matter is not treated as business truth.
+Default conventions map gate tokens (`pass`/`passed` → `Done`, `blocked`/`block` → `Blocked`, `deferred`/`defer` → `Deferred`), tag `**/evidence/**` as `Spec`, and classify link text containing `supersedes` / `replaces` as `Supersedes`. Front matter can provide explicit status, owner, tags, planning references, guidance pins, guidance groups, and commit-note identity. The allowlisted fields are parsed into typed DTOs; arbitrary front matter is not treated as business truth.
 
 ---
 
