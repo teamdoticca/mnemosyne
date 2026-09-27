@@ -291,4 +291,50 @@ public class DocumentSemanticsTests
 
         doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Done);
     }
+
+    [Fact]
+    public void Roadmap_table_with_blocked_row_aggregates_blocked()
+    {
+        var doc = MnemosyneFacade.Parse(
+            """
+            # Epic board
+
+            | Epic | Status |
+            |------|--------|
+            | a | done |
+            | b | blocked |
+            """,
+            new MarkdownParseOptions { Path = "docs/roadmap.md" });
+
+        doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Blocked);
+        doc.Semantics.StatusRaw.Should().Be("blocked");
+    }
+
+    [Fact]
+    public void Deferred_token_in_status_header_maps_to_deferred()
+    {
+        var doc = MnemosyneFacade.Parse(
+            """
+            # Slice
+
+            **Status:** defer
+            """,
+            new MarkdownParseOptions { Path = "docs/epics/m99/README.md" });
+
+        doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Deferred);
+    }
+
+    [Fact]
+    public void Block_token_maps_to_blocked()
+    {
+        var doc = MnemosyneFacade.Parse(
+            """
+            # Gate
+
+            **Status:** block
+            """,
+            new MarkdownParseOptions { Path = "docs/epics/m99/evidence/gate.md" });
+
+        doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Blocked);
+    }
 }

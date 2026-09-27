@@ -130,4 +130,28 @@ public class LinkRoleClassifierTests
             .Should()
             .Be(LinkRole.Supersedes);
     }
+
+    [Fact]
+    public void Classifies_replaces_link_text_as_supersedes()
+    {
+        var link = new MarkdownLink
+        {
+            Text = "replaces older policy",
+            Target = "./old-policy.md",
+            Line = 4,
+        };
+
+        LinkRoleClassifier.Classify(
+                "docs/policy/new.md",
+                link,
+                "docs/policy/old-policy.md")
+            .Should()
+            .Be(LinkRole.Supersedes);
+    }
+
+    [Fact]
+    public void ToKindString_maps_supersedes()
+    {
+        LinkRoleClassifier.ToKindString(LinkRole.Supersedes).Should().Be("Supersedes");
+    }
 }
