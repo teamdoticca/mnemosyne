@@ -17,15 +17,16 @@ internal static class SignificanceTagger
             {
                 tags.Add(t);
             }
-
-            foreach (var t in FromFileNameHints(frontMatter, rulesFired))
-            {
-                tags.Add(t);
-            }
         }
         else
         {
             rulesFired?.Add("front-matter: mnemosyne.clearBuiltIns");
+        }
+
+        // Explicit author tags (plain `tags:` and `mnemosyne.tags`) always apply.
+        foreach (var t in FromFileNameHints(frontMatter, rulesFired))
+        {
+            tags.Add(t);
         }
 
         foreach (var t in frontMatter.MnemosyneTags)
@@ -112,7 +113,7 @@ internal static class SignificanceTagger
             yield return SignificanceTag.Contributing;
         }
 
-        if (fileLower is "security.md" || lower.Contains("/security/", StringComparison.Ordinal))
+        if (fileLower is "security.md" || PathHasPrefix(lower, "security/"))
         {
             rulesFired?.Add("path: Security");
             yield return SignificanceTag.Security;
@@ -163,9 +164,9 @@ internal static class SignificanceTagger
             }
         }
 
-        if (lower.Contains("/adr/", StringComparison.Ordinal) ||
+        if (PathHasPrefix(lower, "adr/") ||
             fileLower.StartsWith("adr-", StringComparison.Ordinal) ||
-            RegexFileMatch(fileLower, @"^\d{4}-.*\.md$") && lower.Contains("/decisions/", StringComparison.Ordinal))
+            RegexFileMatch(fileLower, @"^\d{4}-.*\.md$") && PathHasPrefix(lower, "decisions/"))
         {
             rulesFired?.Add("path: Adr");
             yield return SignificanceTag.Adr;
@@ -184,7 +185,7 @@ internal static class SignificanceTagger
         }
 
         if (fileLower.Contains("spec", StringComparison.Ordinal) ||
-            lower.Contains("/specs/", StringComparison.Ordinal))
+            PathHasPrefix(lower, "specs/"))
         {
             rulesFired?.Add("path: Spec");
             yield return SignificanceTag.Spec;
@@ -204,7 +205,7 @@ internal static class SignificanceTagger
     private static bool IsRunbookPath(string fileLower, string lower)
     {
         if (fileLower.Contains("runbook", StringComparison.Ordinal) ||
-            lower.Contains("/runbooks/", StringComparison.Ordinal))
+            PathHasPrefix(lower, "runbooks/"))
         {
             return true;
         }
@@ -217,7 +218,7 @@ internal static class SignificanceTagger
         }
 
         if (fileLower.Contains("onboarding", StringComparison.Ordinal) ||
-            lower.Contains("/onboarding/", StringComparison.Ordinal))
+            PathHasPrefix(lower, "onboarding/"))
         {
             return true;
         }

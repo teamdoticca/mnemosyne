@@ -372,8 +372,8 @@ public class BranchHeadroomTests
             """,
             new MarkdownParseOptions { Path = "docs/roadmap.md" });
 
-        // GFM tables without leading pipes may not be detected — assert we don't crash.
-        doc.Semantics.Should().NotBeNull();
+        doc.Semantics.Lifecycle.Should().Be(DocumentLifecycle.Active);
+        doc.Semantics.StatusRaw.Should().Be("active");
     }
 
     [Fact]

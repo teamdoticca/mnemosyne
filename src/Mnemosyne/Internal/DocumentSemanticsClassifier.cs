@@ -457,7 +457,8 @@ internal static class DocumentSemanticsClassifier
         foreach (var raw in bodyLines)
         {
             var line = raw.Trim();
-            if (!line.StartsWith('|'))
+            // GFM allows tables without a leading pipe ("Epic | Status").
+            if (!line.Contains('|', StringComparison.Ordinal))
             {
                 statusCol = null;
                 continue;
