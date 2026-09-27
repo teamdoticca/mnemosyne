@@ -36,10 +36,14 @@ internal static class PathConventionMatcher
         if (g.EndsWith("/**", StringComparison.Ordinal))
         {
             var prefix = g[..^3];
-            return p == prefix || p.StartsWith(prefix + "/", StringComparison.Ordinal);
+            // Prefix itself may contain ** (e.g. docs/**/evidence/**) — use regex path.
+            if (!prefix.Contains('*'))
+            {
+                return p == prefix || p.StartsWith(prefix + "/", StringComparison.Ordinal);
+            }
         }
 
-        if (g.EndsWith("/*", StringComparison.Ordinal))
+        if (g.EndsWith("/*", StringComparison.Ordinal) && !g[..^2].Contains('*'))
         {
             var prefix = g[..^2];
             if (!p.StartsWith(prefix + "/", StringComparison.Ordinal))
